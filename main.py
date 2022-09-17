@@ -6,20 +6,25 @@ import cvlib
 # DLLs
 # os.add_dll_directory("E:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/bin")
 
+
 def detect_human(video_file,
                  take_every_number_frame=1,
                  yolo='yolov4',
-                 continuous=False,
                  confidence=.65,
                  gpu=False):
 
     frame_number = 0
     while video_file.isOpened():
         frame_number = frame_number + 1
-        if frame_number % take_every_number_frame != 0:
+
+        flag, frame = video_file.read()
+        if not flag:
             continue
 
-        _, frame = video_file.read()
+        frame_number = frame_number + 1
+
+        if frame_number % take_every_number_frame != 0:
+            continue
 
         try:
             bbox, labels, conf = cvlib.detect_common_objects(frame,
@@ -39,10 +44,9 @@ def detect_human(video_file,
             print('Frame number ' + str(frame_number)
                   + ': people count is ' + str(labels.count('person')))
 
-            if continuous is False:
-                break
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
+
         cv2.imshow("Video", frame)
 
 
@@ -55,8 +59,7 @@ if __name__ == '__main__':
 
     print("Starting...")
     detect_human(cap,
-                 3,
+                 5,
                  'yolov4-tiny',
-                 True,
                  0.55,
                  False)
