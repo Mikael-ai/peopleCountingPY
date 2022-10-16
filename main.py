@@ -1,10 +1,7 @@
 import cv2
 import sys
-# import os
 import cvlib
-
-# DLLs
-# os.add_dll_directory("E:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/bin")
+import face_recognition
 
 
 def detect_human(video_file,
@@ -50,6 +47,28 @@ def detect_human(video_file,
         cv2.imshow("Video", frame)
 
 
+def recognize_face(video_file,
+                   skipped_frames_count=12):
+    frame_number = 0
+    while video_file.isOpened():
+        frame_number = frame_number + 1
+        if frame_number != skipped_frames_count:
+            continue
+
+        _, frame = video_file.read()
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        image_encoding = face_recognition.face_encodings(frame_rgb)[0]
+        result = face_recognition.compare_faces("Faces/Mikael.jpg", image_encoding)
+        print("Result: ", result)
+
+        frame_number = 0
+
+        cv2.imshow("Video", frame)
+
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+
+
 if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
 
@@ -58,8 +77,6 @@ if __name__ == '__main__':
         sys.exit()
 
     print("Starting...")
-    detect_human(cap,
-                 5,
-                 'yolov4-tiny',
-                 0.55,
-                 False)
+    # detect_human(cap, 5, 'yolov4-tiny', 0.55, False)
+    recognize_face(cap)
+
