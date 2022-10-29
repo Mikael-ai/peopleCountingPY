@@ -1,3 +1,5 @@
+from email.mime import image
+import numpy as np
 import cv2
 import sys
 import cvlib
@@ -57,9 +59,17 @@ def recognize_face(video_file,
 
         _, frame = video_file.read()
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image_encoding = face_recognition.face_encodings(frame_rgb)[0]
-        result = face_recognition.compare_faces("Faces/Mikael.jpg", image_encoding)
-        print("Result: ", result)
+
+        faces_list = face_recognition.face_encodings(frame_rgb)
+        if len(faces_list) > 0:
+            image_encoding = faces_list[0]
+            
+            my_face = cv2.imread('Faces/Mikael.jpg')
+            my_face_rgb = cv2.cvtColor(my_face, cv2.COLOR_BGR2RGB)
+            my_face_rgb_encoded = face_recognition.face_encodings(my_face_rgb)[0]
+
+            result = face_recognition.compare_faces([my_face_rgb_encoded], image_encoding)
+            print(result)
 
         frame_number = 0
 
