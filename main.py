@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import sys
 import os
 import cvlib
 import face_recognition
@@ -99,6 +98,9 @@ def recognize_face(video_file,
         frame_number = 0
 
         cv2.imshow("Face recognition", frame)
+
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
