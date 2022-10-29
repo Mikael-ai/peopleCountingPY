@@ -1,10 +1,11 @@
-from email.mime import image
 import numpy as np
 import cv2
 import sys
+import os
 import cvlib
 import face_recognition
 
+faces_directory = 'Faces' 
 
 def detect_human(video_file,
                  take_every_number_frame=1,
@@ -57,20 +58,31 @@ def recognize_face(video_file,
         if frame_number != skipped_frames_count:
             continue
 
+        # Frame from cam
         _, frame = video_file.read()
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
         faces_list = face_recognition.face_encodings(frame_rgb)
+        
         if len(faces_list) > 0:
-            image_encoding = faces_list[0]
+            for face_filename in os.scandir(faces_directory):
+                if not face_filename.is_file():
+                    continue
+
+                # Face from cam frame
+                image_encoding = faces_list[0]
+
+                # Current face from directory
+                known_face = cv2.imread(face_filename.path)
+                known_face_rgb = cv2.cvtColor(known_face, cv2.COLOR_BGR2RGB)
+                known_face_rgb_encoded = face_recognition.face_encodings(known_face_rgb)[0]
+
+                # Trying to identify a person 
+                result = face_recognition.compare_faces([known_face_rgb_encoded], image_encoding)
+
+                if (len(result) > 0) and (result[0] is True):
+                    print(f"Face match found with face presented in {face_filename}")
+                    break
             
-            my_face = cv2.imread('Faces/Mikael.jpg')
-            my_face_rgb = cv2.cvtColor(my_face, cv2.COLOR_BGR2RGB)
-            my_face_rgb_encoded = face_recognition.face_encodings(my_face_rgb)[0]
-
-            result = face_recognition.compare_faces([my_face_rgb_encoded], image_encoding)
-            print(result)
-
         frame_number = 0
 
         cv2.imshow("Video", frame)
