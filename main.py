@@ -65,6 +65,9 @@ def recognize_face(video_file,
         
         if len(faces_list) > 0:
             for face_filename in os.scandir(faces_directory):
+                if 0xFF == ord('q'):
+                    break
+                
                 if not face_filename.is_file():
                     continue
 
@@ -79,7 +82,7 @@ def recognize_face(video_file,
                 # Trying to identify a person 
                 result = face_recognition.compare_faces([known_face_rgb_encoded], image_encoding)
 
-                if (len(result) > 0) and (result[0] is True):
+                if (len(result) > 0) and (result[0] == True):
                     print(f"Face match found with face presented in {face_filename}")
                     break
             
